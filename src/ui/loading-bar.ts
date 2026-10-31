@@ -50,15 +50,16 @@ export class LoadingBar {
   }
 
   private update(): void {
-    const items = [...downloads.values()];
-    const active = items.some((d) => !d.done);
-    if (!active && !this.isLoading()) {
+    // 검출기를 불러오는 동안만 보인다 (중간에 끊긴 다운로드가 남아도 표시줄이 멈춰 있지 않게)
+    if (!this.isLoading()) {
       downloads.clear(); // 한 묶음이 끝났다. 다음 다운로드부터 다시 센다.
       this.root.style.display = 'none';
       this.root.removeAttribute('aria-valuenow');
       return;
     }
     this.root.style.display = 'block';
+    const items = [...downloads.values()];
+    const active = items.some((d) => !d.done);
     const loaded = items.reduce((n, d) => n + d.loaded, 0);
     const total = items.reduce((n, d) => n + Math.max(d.total, d.loaded), 0);
     const known = items.length > 0 && items.every((d) => d.total > 0 || d.done);

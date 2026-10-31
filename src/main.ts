@@ -1,5 +1,6 @@
 import './style.css';
 import { blockedRequests, installLocalOnlyFetch } from './core/local-only';
+import { isNetworkError, LoadRetry } from './core/load-retry';
 import { coreParamSpecs, ParamStore } from './core/params';
 import { Pipeline } from './core/pipeline';
 import { Registry, type DetectorEntry } from './core/registry';
@@ -297,6 +298,7 @@ function detectorText(s: AmSnapshot): string {
     case 'loading':
       return 'Loading detector…';
     case 'error':
+      if (isNetworkError(s.detectorError)) return 'Model download was interrupted (network or the tab went to the background). Retrying…';
       return s.detectorError ?? 'Detector error';
     case 'ready': {
       const label = detectors.get(s.detectorId ?? '')?.label ?? s.detectorId;
@@ -330,7 +332,20 @@ function updateUi(): void {
   if (note !== null && ui.stageNote.textContent !== note) ui.stageNote.textContent = note;
 }
 
-pipeline.onDetectorState = updateUi;
+// 모델 다운로드가 끊기면(iOS는 백그라운드 탭의 요청을 끊는다) 다시 불러온다.
+const loadRetry = new LoadRetry({
+  state: () => pipeline.detectorState,
+  error: () => pipeline.detectorError,
+  visible: () => document.visibilityState === 'visible',
+  retry: () => pipeline.syncDetector(),
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') loadRetry.onVisible();
+});
+pipeline.onDetectorState = () => {
+  updateUi();
+  loadRetry.onState();
+};
 window.setInterval(updateUi, 250);
 pipeline.syncDetector(); // 페이지를 열자마자 검출기를 불러온다 (시작 전에 준비되도록)
 
