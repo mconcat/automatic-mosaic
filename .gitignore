@@ -1,0 +1,8 @@
+node_modules/
+dist/
+tests/fixtures/
+tests/artifacts/
+test-results/
+playwright-report/
+*.part
+.DS_Store

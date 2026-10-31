@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Automatic Mosaic</title>
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <header class="bar">
+      <h1>Automatic Mosaic</h1>
+      <div class="controls">
+        <button id="toggle" type="button">Start</button>
+      </div>
+      <output id="stats" class="stats" aria-label="Stats">Render 0.0 FPS · Video —</output>
+    </header>
+    <section id="quick" class="quick" aria-label="Quick controls">
+      <form id="hide-form" class="hide-form" autocomplete="off" hidden>
+        <label for="hide-input">Hide:</label>
+        <input id="hide-input" type="text" placeholder="human face, cell phone" spellcheck="false" enterkeyhint="go" />
+        <button type="submit">Apply</button>
+      </form>
+    </section>
+    <div class="messages">
+      <p id="status" class="status" role="status">Idle — press Start.</p>
+      <p id="detector" class="detector" data-state="idle">Detector not loaded</p>
+      <p id="error" class="error" role="alert" hidden></p>
+    </div>
+    <div class="workspace">
+      <main class="stage" id="stage" data-state="idle">
+        <video id="source" muted playsinline aria-hidden="true"></video>
+        <canvas id="view" aria-label="Camera view (masked)"></canvas>
+        <p class="placeholder">Press Start to show the camera here.</p>
+        <p id="stage-note" class="stage-note" hidden></p>
+      </main>
+      <aside id="panel" class="panel" aria-label="Advanced settings"></aside>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
