@@ -1,3 +1,4 @@
+import { withReloadHint } from '../core/chunk-error';
 import type { Delegate, Detection, Detector, DetectorOptions } from '../core/types';
 
 // MediaPipe Tasks 어댑터 공용 부분 (FaceDetector, FaceLandmarker). 메인 스레드에서도, 검출 Worker 안에서도 그대로 쓴다.
@@ -33,7 +34,7 @@ function loadVision(): Promise<Loaded> {
     })
     .catch((err: unknown) => {
       vision = null; // 다음에 다시 시도
-      throw err;
+      throw withReloadHint(err);
     });
   return vision;
 }

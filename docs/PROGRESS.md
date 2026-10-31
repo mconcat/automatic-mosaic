@@ -545,3 +545,15 @@ tests/e2e/worker.spec.ts          메인 초기화가 멈춘 채 Worker로 전�
   - 얼굴(Worker): face 0.88
   - 텍스트 대상 `a tie, a flag`: 0.34, 0.24, 0.14
 - 커밋 작성자: 이 저장소에만 `mconcat <67312570+mconcat@users.noreply.github.com>`로 설정했다(전역 git 설정이 없었다).
+
+## P8 iPhone 텍스트 모드 수정 — 2026-10-31
+
+- 증상 1: iPhone에서 Text targets로 바꾸자마자 탭이 죽었다("이 페이지를 열 수 없음"). 진행 표시줄을 넣은 뒤부터 생겼다.
+  - 원인 추정: 진행률을 세려고 OWL-ViT fp16(약 300MB) 응답을 `clone()`해 iOS WebKit 메모리 한도를 넘었다.
+  - 수정: 64MB를 넘는 응답은 복제하지 않는다. OWL-ViT 진행률은 Transformers.js `progress_callback`으로 받는다. q4f16(127MB)은 onnxruntime-web 1.22 WebGPU에서 세션 생성에 실패해(`Failed to load detector: 265780232`) fp16을 유지했다.
+- 증상 2: 탭은 살았지만 "Importing a module script failed"가 났다.
+  - 원인: 재배포 전에 연 페이지가 이제 없는 코드 조각을 불러왔고, preview 서버가 그 자리에 index.html을 돌려줬다. 같은 빌드를 macOS WebKit에서 돌리면 정상이었다.
+  - 수정: 동적 import 실패를 "앱이 갱신됐을 수 있으니 새로고침하라"는 안내로 바꾼다(`src/core/chunk-error.ts`).
+- 같은 URL은 진행률을 처음 한 번만 센다(검출기를 다시 만들 때마다 모델을 복제하지 않는다).
+  - "검출기를 30번 다시 만들어도 RSS가 계속 늘지 않는다" 탐색 테스트: 304·325MB로 기준 300MB를 넘다가, 수정 후 273MB로 통과했다(20번째 이후 평탄).
+- 전체 E2E(이 수정 전): 125개 중 123개 통과. 실패한 2개는 위 메모리 테스트와, 영어 문구 대소문자(`Worker` → `worker`) 검사였고 둘 다 고쳤다. 수정 후 관련 스펙 62개 통과, 단위 테스트 182개 통과.

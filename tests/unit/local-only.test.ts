@@ -74,3 +74,18 @@ describe('다운로드 진행률', () => {
     expect(seen).toEqual([]);
   });
 });
+
+describe('다운로드 진행률 (반복 요청)', () => {
+  it('같은 URL은 처음 한 번만 센다', async () => {
+    const native = vi.fn(async () => new Response(new Uint8Array(10), { headers: { 'content-length': '10' } }));
+    const scope = { fetch: native as unknown as typeof fetch, location: { origin: ORIGIN } };
+    const seen: string[] = [];
+    installLocalOnlyFetch(scope, () => {}, (p) => seen.push(`${p.url}:${p.done}`));
+    const url = 'https://storage.googleapis.com/mediapipe-models/m.tflite';
+    for (let i = 0; i < 3; i++) await (await scope.fetch(url)).arrayBuffer();
+    await vi.waitFor(() => expect(seen).toContain(`${url}:true`));
+    expect(seen.filter((s) => s.endsWith(':false')).length).toBeGreaterThan(0);
+    expect(new Set(seen.map((s) => s.split(':true')[0])).size).toBeLessThanOrEqual(2);
+    expect(seen.filter((s) => s === `${url}:true`)).toHaveLength(1);
+  });
+});

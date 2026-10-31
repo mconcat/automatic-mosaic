@@ -276,7 +276,7 @@ test('탐색: Worker를 불러오는 중에 Worker 오류가 나면 "불러오�
   console.log('[explore crash while loading]', JSON.stringify(evidence));
   expect(crashed).toBe(true);
   expect(s.detectorState).toBe('error');
-  expect(text).toContain('Worker');
+  expect(text).toMatch(/worker/i);
   expect(text).toMatch(READABLE_TEXT);
   expect(s.workers.live).toBe(0);
   expect(errors).toEqual([]);

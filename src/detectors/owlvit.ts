@@ -1,3 +1,4 @@
+import { withReloadHint } from '../core/chunk-error';
 import { noteProgress } from '../core/local-only';
 import type { Delegate, Detection, Detector, DetectorOptions, ParamSpec } from '../core/types';
 
@@ -35,7 +36,7 @@ function loadLib(): Promise<Transformers> {
     })
     .catch((err: unknown) => {
       lib = null;
-      throw err;
+      throw withReloadHint(err);
     });
   return lib;
 }

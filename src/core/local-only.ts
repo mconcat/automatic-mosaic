@@ -76,6 +76,8 @@ export function installLocalOnlyFetch(
   onProgress: ProgressListener = noteProgress,
 ): void {
   const nativeFetch = scope.fetch.bind(scope);
+  // 진행률은 처음 받을 때만 센다. 검출기를 다시 만들 때 같은 모델을 또 받으면(브라우저 캐시) 복제하지 않는다.
+  const tracked = new Set<string>();
   scope.fetch = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const url = input instanceof Request ? input.url : String(input);
     if (!isAllowedUrl(url, scope.location.origin)) {
@@ -84,7 +86,10 @@ export function installLocalOnlyFetch(
     }
     return nativeFetch(input, init).then((res) => {
       try {
-        trackDownload(res, url, onProgress);
+        if (!tracked.has(url)) {
+          tracked.add(url);
+          trackDownload(res, url, onProgress);
+        }
       } catch {
         // 진행률은 보조 정보다. 세지 못해도 응답은 그대로 넘긴다.
       }
