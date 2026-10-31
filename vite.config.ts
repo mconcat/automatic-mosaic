@@ -5,6 +5,8 @@ import { defineConfig } from 'vitest/config';
 const allowedHosts = ['.ts.net'];
 
 export default defineConfig({
+  // 상대 경로: GitHub Pages 프로젝트 사이트(https://<계정>.github.io/<레포>/)처럼 하위 경로에서 열려도 동작한다
+  base: './',
   server: { allowedHosts },
   preview: { allowedHosts },
   // 검출 Worker는 module Worker다 (MediaPipe를 동적 import 하므로 코드 분할이 되는 ES 형식이어야 한다).

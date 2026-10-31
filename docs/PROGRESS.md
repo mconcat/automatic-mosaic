@@ -537,3 +537,11 @@ tests/e2e/worker.spec.ts          메인 초기화가 멈춘 채 Worker로 전�
   - 데스크톱(1280)과 휴대폰(390) 화면, 모드 전환, 가로 스크롤 없음을 확인했다.
 - E2E 추가 수정: 모델 지연용 정규식(`/models/blaze_face_…`)과 네트워크 스펙의 자산 필터를 새 공식 경로에 맞췄다. 번역 범위에서 빠졌던 `qa-p2-network`의 한국어 버튼 이름을 고쳤다.
 
+## P7 GitHub Pages로 배포할 수 있는 저장소 정리 — 2026-10-31
+
+- `vite.config.ts`에 `base: './'`를 넣어, 빌드 결과물이 하위 경로(`https://<계정>.github.io/<레포>/`)에서도 동작하게 했다.
+- `.github/workflows/deploy.yml`: `main` push 또는 수동 실행 시 Node 24로 `npm ci` → typecheck → 단위 테스트 → build → `actions/upload-pages-artifact`(dist) → `actions/deploy-pages`를 돈다. 저장소 Settings → Pages → Source를 "GitHub Actions"로 한 번 설정해야 한다.
+- 확인: 빌드 결과물을 `/automatic-mosaic/` 하위 폴더에 넣고 정적 서버로 연 뒤 헤드리스 Chrome에서 돌렸다. 400 이상 응답과 페이지 오류는 없었다.
+  - 얼굴(Worker): face 0.88
+  - 텍스트 대상 `a tie, a flag`: 0.34, 0.24, 0.14
+- 커밋 작성자: 이 저장소에만 `mconcat <67312570+mconcat@users.noreply.github.com>`로 설정했다(전역 git 설정이 없었다).

@@ -57,12 +57,22 @@ npm run dev        # http://localhost:5317
 카메라는 보안 컨텍스트에서만 열리므로 `localhost` 주소로 엽니다.
 
 
+## GitHub Pages 배포
+
+빌드 결과물은 서버 쪽 처리가 없는 정적 사이트입니다. 모델·WASM은 브라우저가 공식 저장소에서 받으므로, `dist/`만 올리면 됩니다. `vite.config.ts`의 `base: './'` 덕분에 `https://<계정>.github.io/<레포>/` 같은 하위 경로에서도 동작합니다. GitHub Pages는 HTTPS라 카메라도 열립니다.
+
+1. 이 저장소를 GitHub에 push합니다(기본 브랜치 `main`).
+2. 저장소 **Settings → Pages → Build and deployment → Source**를 **GitHub Actions**로 바꿉니다.
+3. `main`에 push할 때마다 `.github/workflows/deploy.yml`이 타입 검사 → 단위 테스트 → 빌드 → Pages 배포를 합니다. Actions 탭에서 수동으로 실행할 수도 있습니다(`workflow_dispatch`).
+
+배포된 페이지는 **데스크톱 Chrome** 기준입니다. 텍스트 대상(OWL-ViT)은 WebGPU가 필요합니다. iPhone·iPad에서는 얼굴 검출을 메인 스레드·CPU로 돌립니다.
+
 ## 명령
 
 | 명령 | 내용 |
 |---|---|
 | `npm run dev` | 개발 서버 (포트 5317 고정) |
-| `npm run build` | 프로덕션 빌드 → `dist/` |
+| `npm run build` | 프로덕션 빌드 → `dist/` (상대 경로 `base: './'`, GitHub Pages에 그대로 올릴 수 있음) |
 | `npm run preview` | 빌드 결과 서버 (포트 5318 고정) |
 | `npm run typecheck` | `tsc -b` (strict). `tsconfig.app.json`(`src/`, 브라우저 타입만)과 `tsconfig.node.json`(테스트·설정 파일, Node 타입)을 따로 검사 |
 | `npm test` | Vitest 단위 테스트 (`tests/unit`) |
